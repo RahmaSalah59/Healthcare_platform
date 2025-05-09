@@ -21,9 +21,9 @@ namespace Healthcare_platform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _config;
-        private readonly RoleManager<ApplicationUser> _roleManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailService _emailService;
-        public AccountsController(RoleManager<ApplicationUser> roleManager ,UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config, IEmailService emailService)
+        public AccountsController(RoleManager<IdentityRole> roleManager ,UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config, IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -59,11 +59,15 @@ namespace Healthcare_platform.Controllers
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(appuser);
                     // URL encode the token to make it safe for URLs
                     var encodedToken = System.Web.HttpUtility.UrlEncode(token);
-                    var confirmationLink = Url.Action(nameof(ConfirmEmail), "Account", new
+                    var confirmationLink = Url.Action(nameof(ConfirmEmail), "Accounts", new
                     {
                         userId = appuser.Id,
                         token = encodedToken
                     }, Request.Scheme);
+
+                    // 7. Handle role assignment
+                    if (!await _roleManager.RoleExistsAsync(usermodel.role))
+                        await _roleManager.CreateAsync(new IdentityRole(usermodel.role));
 
                     var roleResult = await _userManager.AddToRoleAsync(appuser, usermodel.role);
 

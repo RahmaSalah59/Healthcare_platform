@@ -20,8 +20,8 @@ namespace Healthcare_platform
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            var app = builder.Build();
 
+            // Configure Entity Framework with SQL Server
             builder.Services.AddDbContext<HealthContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
@@ -97,6 +97,7 @@ namespace Healthcare_platform
             });
 
             // Configure the HTTP request pipeline.
+            var app = builder.Build();
 
 
             // Configure the HTTP request pipeline.
